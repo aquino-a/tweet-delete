@@ -10,12 +10,12 @@ public class TweetDelete {
 
     public static void main(String[] args) {
         // check valid args
-        if (args.length < 6 || !args[5].matches("\\d+")) {
+        if (args.length < 6 || !args[4].matches("\\d+")) {
             System.out.println(
                     "Invalid arguments - Call the program using {KEY} {SECRET} {TOKEN} {TOKEN_SECRET} {Time period to delete tweets older than (in days)} {Type of engagements to remove (tweets, likes, retweets)}\nFor example: \"TweetDelete.java 7 -likes - retweets\" to remove likes and retweets older than 7 days.");
             System.exit(0);
         }
-        for (int i = 6; i < args.length; i++) {
+        for (int i = 5; i < args.length; i++) {
             if (!args[i].matches("-likes|-retweets|-tweets")) {
                 System.out.println(
                         "Invalid arguments - Call the program using {KEY} {SECRET} {TOKEN} {TOKEN_SECRET} {Time period to delete tweets older than (in days)} {Type of engagements to remove (tweets, likes, retweets)}\nFor example: \"TweetDelete.java 7 -likes - retweets\" to remove likes and retweets older than 7 days.");
@@ -24,7 +24,7 @@ public class TweetDelete {
         }
 
         // parse args
-        int time = Integer.parseInt(args[5]) * MS_DAY;
+        int time = Integer.parseInt(args[4]) * MS_DAY;
         boolean likes = args.toString().contains("-likes");
         boolean tweets = args.toString().contains("-tweets");
         boolean retweets = args.toString().contains("-retweets");
