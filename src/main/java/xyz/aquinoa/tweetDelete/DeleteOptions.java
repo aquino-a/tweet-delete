@@ -20,17 +20,18 @@ public class DeleteOptions {
     private final boolean isPinned;
     private final boolean hasRetweets;
     private final boolean isNormal;
+    private final String userId;
 
-    private DeleteOptions(int age, int likes, List<String> exceptions, boolean isRetweet,
-                               boolean isReply, boolean isPinned, boolean hasRetweets, boolean isNormal) {
-        this.age = age;
-        this.likes = likes;
-        this.exceptions = exceptions;
-        this.isRetweet = isRetweet;
-        this.isReply = isReply;
-        this.isPinned = isPinned;
-        this.hasRetweets = hasRetweets;
-        this.isNormal = isNormal;
+    private DeleteOptions(Builder builder) {
+        this.age = builder.age;
+        this.likes = builder.likes;
+        this.exceptions = builder.exceptions;
+        this.isRetweet = builder.isRetweet;
+        this.isReply = builder.isReply;
+        this.isPinned = builder.isPinned;
+        this.hasRetweets = builder.hasRetweets;
+        this.isNormal = builder.isNormal;
+        this.userId = builder.userId;
     }
 
     public int getAge() {
@@ -65,6 +66,10 @@ public class DeleteOptions {
         return isNormal;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
     public static class Builder {
         private int age = 0;
         private int likes = 0;
@@ -74,6 +79,7 @@ public class DeleteOptions {
         private boolean isPinned = false;
         private boolean hasRetweets = false;
         private boolean isNormal = false;
+        private String userId;
 
         public Builder age(int age) {
             this.age = age;
@@ -114,9 +120,14 @@ public class DeleteOptions {
             this.isNormal = isNormal;
             return this;
         }
+        
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
 
         public DeleteOptions build() {
-            return new DeleteOptions(age, likes, exceptions, isRetweet, isReply, isPinned, hasRetweets, isNormal);
+            return new DeleteOptions(this);
         }
     }
 }
