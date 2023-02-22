@@ -5,10 +5,13 @@
 package xyz.aquinoa.tweetDelete;
 
 import com.twitter.clientlib.ApiException;
+import com.twitter.clientlib.api.TweetsApi;
+import com.twitter.clientlib.api.TweetsApi.APIusersIdTimelineRequest;
 import com.twitter.clientlib.api.TwitterApi;
 import com.twitter.clientlib.model.Tweet;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,10 +29,7 @@ public class TweetDeleter {
     }
 
     public void delete() throws ApiException {
-        var timelineResponse = twitterApi
-                .tweets()
-                .usersIdTimeline(deleteOptions.getUserId())
-                .execute();
+        var timelineResponse = getTimelineRequest().execute();
         var tweets = timelineResponse.getData();
 
         for (Tweet tweet : tweets) {
@@ -106,5 +106,21 @@ public class TweetDeleter {
         }
 
         return false;
+    }
+    
+//attachments, author_id, context_annotations, conversation_id, created_at, 
+//edit_controls, edit_history_tweet_ids, entities, geo, id, in_reply_to_user_id,
+//lang, non_public_metrics, organic_metrics, possibly_sensitive, 
+//promoted_metrics, public_metrics, referenced_tweets, reply_settings,
+//source, text, withheld
+    private APIusersIdTimelineRequest getTimelineRequest() {
+        return twitterApi
+            .tweets()
+            .usersIdTimeline(deleteOptions.getUserId())
+            .tweetFields(Set.of(
+                    "id",
+                    "created_at", 
+                    "in_reply_to_user_id",
+                    "referenced_tweets"));
     }
 }
