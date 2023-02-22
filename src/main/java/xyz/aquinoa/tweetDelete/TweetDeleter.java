@@ -42,8 +42,8 @@ public class TweetDeleter {
         }
     }
 
-    private boolean shouldDelete(Tweet tweet) {
-        if (!deleteOptions.isNormal() && tweet.getEntities().getMentions().size() == 0) {
+    public boolean shouldDelete(Tweet tweet) {
+        if (!deleteOptions.isNormal() && IsNormal(tweet)) {
             return false;
         }
 
@@ -79,7 +79,6 @@ public class TweetDeleter {
 //        if (deleteOptions.isRetweet() && tweet.Retweet()) {
 //            return false;
 //        }
-
         if (!deleteOptions.isReply() && tweet.getInReplyToUserId() == null) {
             return false;
         }
@@ -88,11 +87,24 @@ public class TweetDeleter {
 //        if (deleteOptions.isPinned() && tweet.getPublicMetrics().getRetweetCount() > 0) {
 //            return false;
 //        }
-
         if (!deleteOptions.hasRetweets() && tweet.getPublicMetrics().getRetweetCount() == 0) {
             return false;
         }
 
         return true;
+    }
+
+    private boolean IsNormal(Tweet tweet) {
+        var entities = tweet.getEntities();
+        if (entities == null) {
+            return true;
+        }
+
+        var mentions = entities.getMentions();
+        if (mentions == null || mentions.isEmpty()) {
+            return true;
+        }
+
+        return false;
     }
 }

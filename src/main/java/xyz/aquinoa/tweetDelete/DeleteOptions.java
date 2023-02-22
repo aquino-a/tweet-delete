@@ -71,8 +71,8 @@ public class DeleteOptions {
     }
 
     public static class Builder {
-        private int age = 0;
-        private int likes = 0;
+        private int age = -1;
+        private int likes = -1;
         private List<String> exceptions = new ArrayList<>();
         private boolean isRetweet = false;
         private boolean isReply = false;
