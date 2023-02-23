@@ -4,6 +4,7 @@
  */
 package xyz.aquinoa.tweetDelete;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,15 +13,15 @@ import java.util.List;
  * @author alex
  */
 public class DeleteOptions {
-    private final int age;
-    private final int likes;
-    private final List<String> exceptions;
-    private final boolean isRetweet;
-    private final boolean isReply;
-    private final boolean isPinned;
-    private final boolean hasRetweets;
-    private final boolean isNormal;
-    private final String userId;
+    private int age;
+    private int likes;
+    private List<String> exceptions;
+    private boolean isRetweet;
+    private boolean isReply;
+    private boolean isPinned;
+    private boolean hasRetweets;
+    private boolean isNormal;
+    private String userId;
 
     private DeleteOptions(Builder builder) {
         this.age = builder.age;
@@ -70,6 +71,51 @@ public class DeleteOptions {
         return userId;
     }
 
+    @JsonSetter("age")
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @JsonSetter("likes")
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    @JsonSetter("exceptions")
+    public void setExceptions(List<String> exceptions) {
+        this.exceptions = exceptions;
+    }
+
+    @JsonSetter("retweets")
+    public void setIsRetweet(boolean isRetweet) {
+        this.isRetweet = isRetweet;
+    }
+
+    @JsonSetter("replies")
+    public void setIsReply(boolean isReply) {
+        this.isReply = isReply;
+    }
+
+    @JsonSetter("pinned")
+    public void setIsPinned(boolean isPinned) {
+        this.isPinned = isPinned;
+    }
+
+    @JsonSetter("hasRetweets")
+    public void setHasRetweets(boolean hasRetweets) {
+        this.hasRetweets = hasRetweets;
+    }
+
+    @JsonSetter("normal")
+    public void setIsNormal(boolean isNormal) {
+        this.isNormal = isNormal;
+    }
+
+    @JsonSetter("userId")
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    
     public static class Builder {
         private int age = -1;
         private int likes = -1;

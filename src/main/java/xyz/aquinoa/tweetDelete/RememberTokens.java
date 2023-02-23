@@ -4,9 +4,11 @@
  */
 package xyz.aquinoa.tweetDelete;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.twitter.clientlib.ApiClientCallback;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -22,20 +24,25 @@ public class RememberTokens implements ApiClientCallback {
 
     @Override
     public void onAfterRefreshToken(OAuth2AccessToken accessToken) {
-        var prop = new Properties();
-        try ( var is = new FileInputStream("./config.properties")) {
-            prop.load(is);
+        var objectMapper = new ObjectMapper();
+
+        OauthValues oauthValues = null;
+        try ( var is = new FileInputStream("./tokens.json")) {
+            oauthValues = objectMapper.readValue(is, OauthValues.class);
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Problem reading config properties", ex);
+            LOGGER.log(Level.SEVERE, "Problem reading Oauth values.", ex);
         }
 
-        prop.setProperty("access-token", accessToken.getAccessToken());
-        prop.setProperty("refresh-token", accessToken.getRefreshToken());
+        oauthValues.setAccessToken(accessToken.getAccessToken());
+        oauthValues.setRefreshToken(accessToken.getRefreshToken());
 
-        try ( var os = new FileOutputStream("./config.properties")) {
-            prop.store(os, null);
+        try ( var is = new FileOutputStream("./tokens.json")) {
+            objectMapper.writeValue(is, oauthValues);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Problem saving Oauth values.", ex);
         }
 
+        LOGGER.log(Level.INFO, "Refreshed Tokens.");
         LOGGER.log(Level.INFO, "access: " + accessToken.getAccessToken());
         LOGGER.log(Level.INFO, "refresh: " + accessToken.getRefreshToken());
     }

@@ -42,4 +42,5 @@ buildNumber.properties
 
 .idea
 
-config.properties
+tokens.json
+options.json

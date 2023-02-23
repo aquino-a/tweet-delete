@@ -1,0 +1,11 @@
+{
+    "age": 10,
+    "likes": 1,
+    "exceptions": ["userId"],
+    "retweets": false,
+    "replies": true,
+    "pinned": false,
+    "hasRetweets": false,
+    "normal": false,
+    "userId": "myId"
+}
