@@ -10,6 +10,9 @@ import com.twitter.clientlib.TwitterCredentialsOAuth2;
 import com.twitter.clientlib.api.TwitterApi;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,25 +33,44 @@ public class App {
     }
 
     private static TwitterApi getTwitterApi() throws IOException {
-
-        try ( var is = new FileInputStream("./tokens.json")) {
-            var oauthValues = OBJECT_MAPPER.readValue(is, OauthValues.class);
-
-            var credentials = new TwitterCredentialsOAuth2(
-                    oauthValues.getClientId(),
-                    oauthValues.getClientSecret(),
-                    oauthValues.getAccessToken(),
-                    oauthValues.getRefreshToken(),
-                    true);
-            var twitterApi = new TwitterApi(credentials);
-            twitterApi.addCallback(new RememberTokens(OBJECT_MAPPER));
-            return twitterApi;
+        if (!Files.exists(Path.of("tokens.json"))) {
+            try ( var is = App.class.getResourceAsStream("/tokens.json")) {
+                return getTwitterFromStream(is);
+            }
+        } else {
+            try ( var is = new FileInputStream("./tokens.json")) {
+                return getTwitterFromStream(is);
+            }
         }
+    }
+
+    private static TwitterApi getTwitterFromStream(InputStream stream) throws IOException {
+        var oauthValues = OBJECT_MAPPER.readValue(stream, OauthValues.class);
+        var credentials = new TwitterCredentialsOAuth2(
+                oauthValues.getClientId(),
+                oauthValues.getClientSecret(),
+                oauthValues.getAccessToken(),
+                oauthValues.getRefreshToken(),
+                true);
+        var twitterApi = new TwitterApi(credentials);
+        twitterApi.addCallback(new RememberTokens(OBJECT_MAPPER));
+        return twitterApi;
     }
 
     private static DeleteOptions getDeleteOptions() throws IOException {
-        try ( var is = new FileInputStream("./options.json")) {
-            return OBJECT_MAPPER.readValue(is, DeleteOptions.class);
+        if (!Files.exists(Path.of("options.json"))) {
+            try ( var is = App.class.getResourceAsStream("/options.json")) {
+                return getOptionsFromStream(is);
+            }
+        } else {
+            try ( var is = new FileInputStream("./options.json")) {
+                return getOptionsFromStream(is);
+            }
         }
     }
+
+    private static DeleteOptions getOptionsFromStream(InputStream stream) throws IOException {
+        return OBJECT_MAPPER.readValue(stream, DeleteOptions.class);
+    }
+
 }
