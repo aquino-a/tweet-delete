@@ -23,6 +23,9 @@ public class DeleteOptions {
     private boolean isNormal;
     private String userId;
 
+    public DeleteOptions() {
+    }
+
     private DeleteOptions(Builder builder) {
         this.age = builder.age;
         this.likes = builder.likes;

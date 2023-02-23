@@ -51,7 +51,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>TweetDelete</mainClass>
+                            <mainClass>xyz.aquinoa.tweetDelete.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

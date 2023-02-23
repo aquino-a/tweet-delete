@@ -21,11 +21,14 @@ import java.util.logging.Logger;
 public class RememberTokens implements ApiClientCallback {
 
     private static final Logger LOGGER = Logger.getLogger(RememberTokens.class.getName());
+    private final ObjectMapper objectMapper;
+
+    public RememberTokens(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void onAfterRefreshToken(OAuth2AccessToken accessToken) {
-        var objectMapper = new ObjectMapper();
-
         OauthValues oauthValues = null;
         try ( var is = new FileInputStream("./tokens.json")) {
             oauthValues = objectMapper.readValue(is, OauthValues.class);
