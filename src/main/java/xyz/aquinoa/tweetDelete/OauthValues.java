@@ -14,10 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class OauthValues {
 
-    @JsonIgnore
     private String clientId;
-    
-    @JsonIgnore
     private String clientSecret;
     
     @JsonAlias({ "accessToken", "access_token" })
