@@ -34,18 +34,20 @@ public class App {
         try ( var is = new FileInputStream("./tokens.json")) {
             var oauthValues = OBJECT_MAPPER.readValue(is, OauthValues.class);
 
-            var twitterApi = new TwitterApi(new TwitterCredentialsOAuth2(
+            var credentials = new TwitterCredentialsOAuth2(
                     oauthValues.getClientId(),
                     oauthValues.getClientSecret(),
                     oauthValues.getAccessToken(),
-                    oauthValues.getRefreshToken()));
+                    oauthValues.getRefreshToken(),
+                    true);
+            var twitterApi = new TwitterApi(credentials);
             twitterApi.addCallback(new RememberTokens(OBJECT_MAPPER));
             return twitterApi;
         }
     }
 
     private static DeleteOptions getDeleteOptions() throws IOException {
-        try(var is = new FileInputStream("./options.json")){
+        try ( var is = new FileInputStream("./options.json")) {
             return OBJECT_MAPPER.readValue(is, DeleteOptions.class);
         }
     }
