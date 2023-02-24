@@ -41,12 +41,19 @@ public class TweetDeleter {
 
             var tweetsResponse = tweetsRequest.execute();
             var tweets = tweetsResponse.getData();
+
+            if (tweets == null) {
+                break;
+            }
             
+            LOGGER.log(Level.INFO, "Got %d tweets.", tweets.size());
             delete(tweets);
-            
+
             var lastTweet = tweets.get(tweets.size() - 1);
             untilId = lastTweet.getId();
         } while (untilId != null);
+        
+        LOGGER.log(Level.INFO, "Finished Deleting.");
     }
 
     public boolean shouldDelete(Tweet tweet) {
