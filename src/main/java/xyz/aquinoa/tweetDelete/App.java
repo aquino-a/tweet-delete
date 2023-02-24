@@ -13,8 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  *
@@ -28,6 +27,9 @@ public class App {
         var deleteOptions = getDeleteOptions();
         var twitterApi = getTwitterApi();
 
+        var userId = getUserId(twitterApi);
+        deleteOptions.setUserId(userId);
+        
         var deleter = new TweetDeleter(deleteOptions, twitterApi);
         deleter.delete();
     }
@@ -72,5 +74,15 @@ public class App {
     private static DeleteOptions getOptionsFromStream(InputStream stream) throws IOException {
         return OBJECT_MAPPER.readValue(stream, DeleteOptions.class);
     }
-
+    
+    private static String getUserId(TwitterApi twitterApi) throws ApiException{
+        var response = twitterApi.users()
+                .findMyUser()
+                .userFields(Set.of("id", "pinned_tweet_id"))
+                .execute();
+        
+        var user = response.getData();
+        
+        return user.getId();
+    }
 }
