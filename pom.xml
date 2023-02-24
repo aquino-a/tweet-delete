@@ -63,6 +63,9 @@
                         <manifest>
                             <mainClass>xyz.aquinoa.tweetDelete.App</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
+                        </manifestEntries>
                     </archive>
                 </configuration>
                 <executions>
