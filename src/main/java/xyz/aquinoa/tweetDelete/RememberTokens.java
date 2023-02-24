@@ -8,8 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.twitter.clientlib.ApiClientCallback;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +34,7 @@ public class RememberTokens implements ApiClientCallback {
     @Override
     public void onAfterRefreshToken(OAuth2AccessToken accessToken) {
         OauthValues oauthValues = null;
-        try ( var is = new FileInputStream("./tokens.json")) {
+        try ( var is = getTokenInput()) {
             oauthValues = objectMapper.readValue(is, OauthValues.class);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Problem reading Oauth values.", ex);
@@ -48,5 +52,13 @@ public class RememberTokens implements ApiClientCallback {
         LOGGER.log(Level.INFO, "Refreshed Tokens.");
         LOGGER.log(Level.INFO, "access: " + accessToken.getAccessToken());
         LOGGER.log(Level.INFO, "refresh: " + accessToken.getRefreshToken());
+    }
+
+    private InputStream getTokenInput() throws IOException {
+        if (Files.exists(Path.of("./tokens.json"))) {
+            return new FileInputStream("./tokens.json");
+        } else {
+            return RememberTokens.class.getResourceAsStream("/tokens.json");
+        }
     }
 }
