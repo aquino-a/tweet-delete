@@ -5,13 +5,17 @@
 package xyz.aquinoa.tweetDelete;
 
 import com.twitter.clientlib.ApiException;
-import com.twitter.clientlib.api.TweetsApi;
-import com.twitter.clientlib.api.TweetsApi.APIusersIdTimelineRequest;
+import com.twitter.clientlib.api.TweetsApi.APIusersIdTweetsRequest;
 import com.twitter.clientlib.api.TwitterApi;
 import com.twitter.clientlib.model.Tweet;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -19,6 +23,8 @@ import java.util.stream.Collectors;
  * @author alex
  */
 public class TweetDeleter {
+
+    private static final Logger LOGGER = Logger.getLogger(TweetDeleter.class.getName());
 
     private final DeleteOptions deleteOptions;
     private final TwitterApi twitterApi;
@@ -29,17 +35,18 @@ public class TweetDeleter {
     }
 
     public void delete() throws ApiException {
-        var timelineResponse = getTimelineRequest().execute();
-        var tweets = timelineResponse.getData();
+        String untilId = null;
+        do {
+            var tweetsRequest = getTweetsRequest(untilId);
 
-        for (Tweet tweet : tweets) {
-            if (shouldDelete(tweet)) {
-                var deleteResponse = twitterApi
-                        .tweets()
-                        .deleteTweetById(tweet.getId())
-                        .execute();
-            }
-        }
+            var tweetsResponse = tweetsRequest.execute();
+            var tweets = tweetsResponse.getData();
+            
+            delete(tweets);
+            
+            var lastTweet = tweets.get(tweets.size() - 1);
+            untilId = lastTweet.getId();
+        } while (untilId != null);
     }
 
     public boolean shouldDelete(Tweet tweet) {
@@ -87,14 +94,34 @@ public class TweetDeleter {
 //        if (deleteOptions.isPinned() && tweet.getPublicMetrics().getRetweetCount() > 0) {
 //            return false;
 //        }
-        if (!deleteOptions.hasRetweets() && tweet.getPublicMetrics().getRetweetCount() == 0) {
+        if (!deleteOptions.hasRetweets() && tweet.getPublicMetrics().getRetweetCount() > 0) {
+            return false;
+        }
+
+        if (!deleteOptions.hasReplies() && tweet.getPublicMetrics().getReplyCount() > 0) {
             return false;
         }
 
         return true;
     }
 
+    private void delete(List<Tweet> tweets) throws ApiException {
+        for (Tweet tweet : tweets) {
+            if (shouldDelete(tweet)) {
+                var msg = String.format("Deleting tweet: %s, %s", tweet.getText(), tweet.getCreatedAt());
+                LOGGER.log(Level.INFO, msg);
+                var deleteResponse = twitterApi
+                        .tweets()
+                        .deleteTweetById(tweet.getId())
+                        .execute();
+            }
+        }
+    }
+
     private boolean IsNormal(Tweet tweet) {
+        if (tweet.getInReplyToUserId() != null) {
+            return false;
+        }
         var entities = tweet.getEntities();
         if (entities == null) {
             return true;
@@ -107,20 +134,30 @@ public class TweetDeleter {
 
         return false;
     }
-    
+
 //attachments, author_id, context_annotations, conversation_id, created_at, 
 //edit_controls, edit_history_tweet_ids, entities, geo, id, in_reply_to_user_id,
 //lang, non_public_metrics, organic_metrics, possibly_sensitive, 
 //promoted_metrics, public_metrics, referenced_tweets, reply_settings,
 //source, text, withheld
-    private APIusersIdTimelineRequest getTimelineRequest() {
+    private APIusersIdTweetsRequest getTweetsRequest(String untilId) {
+        var fromTime = OffsetDateTime.now()
+                .minusDays(deleteOptions.getAge())
+                .truncatedTo(ChronoUnit.MINUTES);
+
         return twitterApi
-            .tweets()
-            .usersIdTimeline(deleteOptions.getUserId())
-            .tweetFields(Set.of(
-                    "id",
-                    "created_at", 
-                    "in_reply_to_user_id",
-                    "referenced_tweets"));
+                .tweets()
+                .usersIdTweets(deleteOptions.getUserId())
+                .tweetFields(Set.of(
+                        "id",
+                        "created_at",
+                        "entities",
+                        "text",
+                        "public_metrics",
+                        "in_reply_to_user_id",
+                        "referenced_tweets"))
+                .maxResults(50)
+                .endTime(fromTime)
+                .untilId(untilId);
     }
 }
