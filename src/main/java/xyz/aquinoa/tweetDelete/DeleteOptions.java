@@ -18,6 +18,7 @@ public class DeleteOptions {
     private List<String> exceptions;
     private boolean isRetweet;
     private boolean isReply;
+    private boolean hasReplies;
     private boolean isPinned;
     private boolean hasRetweets;
     private boolean isNormal;
@@ -58,6 +59,10 @@ public class DeleteOptions {
         return isReply;
     }
 
+    public boolean hasReplies() {
+        return hasReplies;
+    }
+    
     public boolean isPinned() {
         return isPinned;
     }
@@ -99,6 +104,11 @@ public class DeleteOptions {
         this.isReply = isReply;
     }
 
+    @JsonSetter("hasReplies")
+    public void setHasReplies(boolean hasReplies) {
+        this.hasReplies = hasReplies;
+    }
+    
     @JsonSetter("pinned")
     public void setIsPinned(boolean isPinned) {
         this.isPinned = isPinned;
@@ -125,6 +135,7 @@ public class DeleteOptions {
         private List<String> exceptions = new ArrayList<>();
         private boolean isRetweet = false;
         private boolean isReply = false;
+        private boolean hasReplies = false;
         private boolean isPinned = false;
         private boolean hasRetweets = false;
         private boolean isNormal = false;
@@ -152,6 +163,11 @@ public class DeleteOptions {
 
         public Builder isReply(boolean isReply) {
             this.isReply = isReply;
+            return this;
+        }
+        
+        public Builder hasReplies(boolean hasReplies) {
+            this.hasReplies = hasReplies;
             return this;
         }
 

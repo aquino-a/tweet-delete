@@ -4,6 +4,7 @@
     "exceptions": ["userId"],
     "retweets": false,
     "replies": true,
+    "hasReplies": false,
     "pinned": false,
     "hasRetweets": false,
     "normal": false,
