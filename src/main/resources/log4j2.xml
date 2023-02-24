@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="PropertiesConfig" packages="com.aquino.webParser">
+    <Properties>
+        <Property name="inputFileName">logs/delete.log</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d %p %C{1.} %m%n"/>
+            <Filters>
+                <ThresholdFilter level="all"/>
+            </Filters>
+        </Console>
+        <RollingFile name="inputRolling"
+                     fileName="${inputFileName}"
+                     filePattern="logs/delete-%d{MM-dd-yy}-%i.log.gz">
+            <PatternLayout pattern="%d{MM-dd-yy hh:m a} %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="5" />
+            <Filters>
+                <ThresholdFilter level="info"/>
+            </Filters>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="xyz.aquinoa.tweetDelete" level="info">
+            <AppenderRef ref="inputRolling"/>
+        </Logger>
+        <Root level="all">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

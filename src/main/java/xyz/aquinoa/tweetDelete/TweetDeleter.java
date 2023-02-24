@@ -14,9 +14,10 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class TweetDeleter {
 
-    private static final Logger LOGGER = Logger.getLogger(TweetDeleter.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private final DeleteOptions deleteOptions;
     private final TwitterApi twitterApi;
@@ -46,7 +47,7 @@ public class TweetDeleter {
                 break;
             }
             
-            LOGGER.log(Level.INFO, "Got %d tweets.", tweets.size());
+            LOGGER.log(Level.INFO, String.format("Got %d tweets.", tweets.size()));
             delete(tweets);
 
             var lastTweet = tweets.get(tweets.size() - 1);
