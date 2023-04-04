@@ -8,6 +8,10 @@ import com.twitter.clientlib.ApiException;
 import com.twitter.clientlib.api.TweetsApi.APIusersIdTweetsRequest;
 import com.twitter.clientlib.api.TwitterApi;
 import com.twitter.clientlib.model.Tweet;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
@@ -26,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 public class TweetDeleter {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final String LAST_ID_FILENAME = "lastId";
 
     private final DeleteOptions deleteOptions;
     private final TwitterApi twitterApi;
@@ -37,7 +42,8 @@ public class TweetDeleter {
 
     public void delete() throws ApiException {
         String untilId = null;
-        do {
+        String firstId = null;
+        while (true) {
             var tweetsRequest = getTweetsRequest(untilId);
 
             var tweetsResponse = tweetsRequest.execute();
@@ -46,14 +52,19 @@ public class TweetDeleter {
             if (tweets == null) {
                 break;
             }
-            
+
             LOGGER.log(Level.INFO, String.format("Got %d tweets.", tweets.size()));
             delete(tweets);
 
+            if (firstId == null) {
+                firstId = tweets.get(0).getId();
+            }
+
             var lastTweet = tweets.get(tweets.size() - 1);
             untilId = lastTweet.getId();
-        } while (untilId != null);
-        
+        }
+
+        updateLastId(firstId);
         LOGGER.log(Level.INFO, "Finished Deleting.");
     }
 
@@ -70,11 +81,13 @@ public class TweetDeleter {
             }
         }
 
-        if (deleteOptions.getLikes() > -1 && tweet.getPublicMetrics().getLikeCount() >= deleteOptions.getLikes()) {
+        if (deleteOptions.getLikes() > -1
+                && tweet.getPublicMetrics().getLikeCount() >= deleteOptions.getLikes()) {
             return false;
         }
 
-        if (deleteOptions.getExceptions().size() > 0) {
+        if (!deleteOptions.getExceptions().isEmpty()
+                && tweet.getEntities() != null) {
             var mentionedUsers = tweet.getEntities()
                     .getMentions()
                     .stream()
@@ -149,11 +162,11 @@ public class TweetDeleter {
 //promoted_metrics, public_metrics, referenced_tweets, reply_settings,
 //source, text, withheld
     private APIusersIdTweetsRequest getTweetsRequest(String untilId) {
-        var fromTime = OffsetDateTime.now()
-                .minusDays(deleteOptions.getAge())
-                .truncatedTo(ChronoUnit.MINUTES);
+        var fromTime = getFromTime();
 
-        return twitterApi
+        var sinceId = getLastId();
+
+        var request = twitterApi
                 .tweets()
                 .usersIdTweets(deleteOptions.getUserId())
                 .tweetFields(Set.of(
@@ -164,8 +177,50 @@ public class TweetDeleter {
                         "public_metrics",
                         "in_reply_to_user_id",
                         "referenced_tweets"))
-                .maxResults(50)
+                .maxResults(100)
+                .sinceId(sinceId)
                 .endTime(fromTime)
                 .untilId(untilId);
+
+        return request;
+    }
+
+    private void updateLastId(String lastId) {
+        if (lastId == null) {
+            return;
+        }
+
+        writeValue(Path.of(LAST_ID_FILENAME), lastId);
+        LOGGER.info(String.format("Updated last tweet id: %s", lastId));
+    }
+
+    private String getLastId() {
+        return readValue(Path.of(LAST_ID_FILENAME));
+    }
+
+    private String readValue(Path path) {
+        try {
+            if (Files.exists(path)) {
+                return Files.readString(path);
+            }
+        } catch (IOException ex) {
+            LOGGER.error(String.format("Failed to read: %s", path.toString()), ex);
+        }
+
+        return null;
+    }
+
+    private void writeValue(Path path, String value) {
+        try {
+            Files.writeString(path, value, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException ex) {
+            LOGGER.error(String.format("Failed to write value (%s) to: %s", value, path.toString()), ex);
+        }
+    }
+
+    private OffsetDateTime getFromTime() {
+        return OffsetDateTime.now()
+                .minusDays(deleteOptions.getAge())
+                .truncatedTo(ChronoUnit.MINUTES);
     }
 }
