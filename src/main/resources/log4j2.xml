@@ -13,8 +13,8 @@
         </Console>
         <RollingFile name="inputRolling"
                      fileName="${inputFileName}"
-                     filePattern="logs/delete-%d{MM-dd-yy}-%i.log.gz">
-            <PatternLayout pattern="%d{MM-dd-yy hh:m a} %m%n"/>
+                     filePattern="logs/delete-%d{MM-yy}-%i.log.gz">
+            <PatternLayout pattern="%d{MM-dd-yy h:mm a} %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="100MB" />
