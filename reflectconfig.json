@@ -1,0 +1,36 @@
+[
+    {
+      "name" : "xyz.aquinoa.tweetDelete.DeleteOptions",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "xyz.aquinoa.tweetDelete.OauthValues",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "org.apache.logging.log4j.message.DefaultFlowMessageFactory",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "org.apache.logging.log4j.message.ParameterizedMessageFactory",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "org.apache.logging.log4j.core.impl.Log4jContextFactory",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "org.apache.logging.log4j.core.util.ExecutorServices",
+      "allPublicConstructors" : true,
+      "allPublicMethods" : true
+    },
+    {
+      "name" : "com.twitter.clientlib.model.UnsupportedAuthenticationProblem",
+      "unsafeAllocated" : true
+    }
+]
