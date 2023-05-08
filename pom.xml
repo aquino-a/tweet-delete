@@ -168,7 +168,10 @@
                         <configuration>
                             <fallback>false</fallback>
                             <buildArgs>
-                                <arg>-H:DashboardDump=fortune -H:+DashboardAll -H:ReflectionConfigurationFiles=${basedir}/reflectconfig.json --enable-url-protocols=https</arg>
+                                <arg>-H:DashboardDump=fortune -H:+DashboardAll</arg>
+                                <arg>-H:ReflectionConfigurationFiles=${basedir}/graal/reflect-config.json</arg>
+                                <arg>-H:ResourceConfigurationFiles=${basedir}/graal/resource-config.json</arg>
+                                <arg>--enable-url-protocols=https</arg>
                             </buildArgs>
                             <agent>
                                 <enabled>true</enabled>
