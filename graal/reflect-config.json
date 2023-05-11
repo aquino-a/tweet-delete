@@ -34,6 +34,10 @@
         "unsafeAllocated": true
     },
     {
+        "name": "com.twitter.clientlib.model.Get2UsersMeResponse",
+        "unsafeAllocated": true
+    },
+    {
         "name": "java.io.ObjectInputStream",
         "allPublicMethods": true
     },
